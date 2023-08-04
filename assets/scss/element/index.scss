@@ -1,0 +1,42 @@
+$-colors: ( // Переобпределение цветов по умолчанию
+  // 'primary': (
+  //   'base': #ff6820,
+  //   // 'base': rgba(107,33,168, 1),
+  // ),
+  // 'success': (
+  //   'base': #67c23a,
+  // ),
+  // 'warning': (
+  //   'base': #e6a23c,
+  // ),
+  // 'danger': (
+  //   'base': #f56c6c,
+  // ),
+  // 'error': (
+  //   'base': #f56c6c,
+  // ),
+  // 'info': (
+  //   'base': #909399,
+  // ),
+);
+
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: $-colors // Переобпределение цветов
+);
+
+
+@use './dark.scss'; // Тёмная тема
+
+
+// @use 'element-plus/theme-chalk/src/display.scss'; // Вспомогательные классы для скрытия элементов
+    // hidden-xs-only - hide when on extra small viewports only
+    // hidden-sm-only - hide when on small viewports only
+    // hidden-sm-and-down - hide when on small viewports and down
+    // hidden-sm-and-up - hide when on small viewports and up
+    // hidden-md-only - hide when on medium viewports only
+    // hidden-md-and-down - hide when on medium viewports and down
+    // hidden-md-and-up - hide when on medium viewports and up
+    // hidden-lg-only - hide when on large viewports only
+    // hidden-lg-and-down - hide when on large viewports and down
+    // hidden-lg-and-up - hide when on large viewports and up
+    // hidden-xl-only - hide when on extra large viewports only
