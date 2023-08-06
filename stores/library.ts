@@ -10,7 +10,6 @@ export const useLibraryStore = defineStore("library", () => {
   const inputData = ref<any>({})
   const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
   const selected = ref({
-    // adult_ranks: new Set<object>([]),
     adult_ranks: <any>[],
     formats: [],
     genres: [],

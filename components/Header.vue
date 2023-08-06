@@ -37,6 +37,7 @@ const { setColorMode, isDark } = useUserSettings()
 
 <style lang="scss">
 .header {
+  background-color: var(--el-bg-color-overlay);
   box-shadow: var(--el-box-shadow);
   border-bottom: 1px solid var(--el-border-color);
 }

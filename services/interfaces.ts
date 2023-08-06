@@ -8,7 +8,7 @@ export interface cover {
 }
 
 /**
- * Типы (манга, манхва, маньхуа, комиксы и т.д.)
+ * Типы (манга, манхва, маньхуа, комиксы, автор и т.д.)
  */
 export interface typeName {
   id: number
@@ -74,4 +74,75 @@ export interface libraryInputData {
   types: itemFilter[]
   sortBy?: sortType
   orderBy?: orderType
+}
+
+/**
+ * Данные тайтла по умолчанию
+ */
+export interface Manga {
+  id: number
+  alias: string | string[]
+  adult_rank?: adultRankManga
+  artists?: typeName[]
+  authors?: typeName[]
+  chapter_count?: number
+  chapter_first?: number
+  comment_count?: number
+  cover?: string | string[]
+  created_at?: string
+  description?: string
+  formats?: typeName[]
+  genres?: typeName[]
+  publishers?: typeName[]
+  rating?: ratingManga
+  status_of_releases?: typeName
+  status_of_translation?: typeName
+  tags?: typeName[]
+  teams?: teamManga[]
+  title_alt?: string
+  title_eng?: string
+  title_orig?: string
+  title_rus?: string
+  type?: typeName
+  updated_at?: string
+  views?: number
+  year?: string
+  // value: Manga
+}
+
+/**
+ * Возрастной рейтинг тайтла
+ */
+interface adultRankManga {
+  id: number,
+  name: string,
+  max?: number
+}
+
+/**
+ * Рейтинг тайтла с голосами
+ */
+interface ratingManga {
+  amount: number
+  avg: string
+  star1: number
+  star2: number
+  star3: number
+  star4: number
+  star5: number
+  star6: number
+  star7: number
+  star8: number
+  star9: number
+  star10: number
+  your: number | null
+}
+
+/**
+ * Команда переводчиков тайтла
+ */
+interface teamManga {
+  id: number
+  cover: string | null
+  name: string
 }

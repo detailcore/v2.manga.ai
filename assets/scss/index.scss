@@ -5,6 +5,11 @@ body,
   padding: 0;
 }
 
+*, :after, :before {
+  box-sizing: border-box;
+  margin: 0;
+}
+
 html.dark {
   background: #222;
   color: white;

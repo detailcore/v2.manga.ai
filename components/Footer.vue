@@ -16,6 +16,7 @@
 
 <style lang="scss">
 .footer {
+  background-color: var(--el-bg-color-overlay);
   box-shadow: var(--el-box-shadow);
   border-top: 1px solid var(--el-border-color);
 }
