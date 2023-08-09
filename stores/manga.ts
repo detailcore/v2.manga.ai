@@ -1,9 +1,11 @@
 import { acceptHMRUpdate, defineStore } from "pinia"
 import { Manga } from "services/interfaces"
+import { useDisplayUtils } from '~/composables/useDisplayUtils'
 
 
 export const useMangaStore = defineStore("manga", () => {
   const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
+  const { avgValue } = useDisplayUtils()
 
   // State
   const manga = ref<Manga>({} as Manga)
@@ -18,7 +20,38 @@ export const useMangaStore = defineStore("manga", () => {
   })
 
   // Setters
-  const setSelectedArray = () => {
+  const setRate = (newRate: number) => {
+    const curRate = manga.value.rating.your
+
+    if(newRate === 0) { // Удалить оценку
+      --manga.value.rating.amount
+      --manga.value.rating.stars[curRate-1]
+      manga.value.rating.your = newRate
+      manga.value.rating.avg = avgValue(manga.value.rating.stars)
+      fetchRate(manga.value.id, newRate)
+      return
+    }
+
+    if(curRate != newRate) {
+      // manga.value.rating.stars[newRate] = +1 
+
+      if(curRate > 0 && manga.value.rating.stars[curRate-1] > 0) { // уменьшаем
+        --manga.value.rating.stars[curRate-1]
+      }
+
+      if(curRate > 0) { // увеличение
+        ++manga.value.rating.stars[newRate-1]
+      }
+
+      if(curRate == 0) { // создаём
+        ++manga.value.rating.amount
+        ++manga.value.rating.stars[newRate-1]
+      }
+
+      fetchRate(manga.value.id, newRate)
+      manga.value.rating.your = newRate
+      manga.value.rating.avg = avgValue(manga.value.rating.stars)
+    }
   }
 
   // Actions
@@ -27,8 +60,24 @@ export const useMangaStore = defineStore("manga", () => {
     manga.value = value as Manga
   }
 
+  /**
+   * Set rating by post ID
+   * @param id Post ID
+   * @param num Rating value
+   */
+  const fetchRate = async (id: number, num: number) => {
+    const { data: { value } } = await useFetch(apiDomain + apiPrefix + `/post/${id}/rating`, {
+      method: 'POST',
+      body: { id: id, value: num }
+    })
+
+    console.log('value =>', value)
+  }
+
   return {
     manga,
+
+    setRate,
 
     fetchManga,
   }

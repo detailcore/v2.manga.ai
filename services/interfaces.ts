@@ -94,11 +94,11 @@ export interface Manga {
   formats?: typeName[]
   genres?: typeName[]
   publishers?: typeName[]
-  rating?: ratingManga
+  rating: ratingManga
   status_of_releases?: typeName
   status_of_translation?: typeName
   tags?: typeName[]
-  teams?: teamManga[]
+  teams: teamManga[]
   title_alt?: string
   title_eng?: string
   title_orig?: string
@@ -107,7 +107,6 @@ export interface Manga {
   updated_at?: string
   views?: number
   year?: string
-  // value: Manga
 }
 
 /**
@@ -125,17 +124,8 @@ interface adultRankManga {
 interface ratingManga {
   amount: number
   avg: string
-  star1: number
-  star2: number
-  star3: number
-  star4: number
-  star5: number
-  star6: number
-  star7: number
-  star8: number
-  star9: number
-  star10: number
-  your: number | null
+  stars: number[]
+  your: number
 }
 
 /**
