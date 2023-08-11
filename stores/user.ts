@@ -1,53 +1,103 @@
-import { acceptHMRUpdate, defineStore } from "pinia";
+import type { CookieOptions } from "nuxt/app"
+import { acceptHMRUpdate, defineStore } from "pinia"
+
+interface Auth {
+  email?: string
+  password?: string
+  remember?: boolean
+}
+
+interface User {
+  id: number
+  id_role: number
+  name: string
+  email: string
+}
 
 export const useUserStore = defineStore("user", () => {
-  const savedName = ref("")
-  let currentPost = ref([])
-  const previousNames = ref(new Set<string>())
   const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
 
-  const fetchPostById = async (id: number) => {
-    // const { data: post } = await useFetch(`https://jsonplaceholder.typicode.com/posts/${id}`, { pick: ['title', 'body'] })
-    // currentPost.value = post
-    const { data: { value } } = await useFetch(apiDomain + apiPrefix + `/library`)
-    currentPost.value = value as []
-  }
+  /**
+   * State
+   */
+  const user = ref<User | null>(null)
+  const auth = ref<Auth>({} as Auth)
+  const isOpenLogin = ref<boolean>(false) // Состояние окна регистрации
 
-  const usedNames = computed(() => Array.from(previousNames.value));
-  const otherNames = computed(() =>
-    usedNames.value.filter((name) => name !== savedName.value)
-  );
 
   /**
-   * Changes the current name of the user and saves the one that was used
-   * before.
-   *
-   * @param name - new name to set
+   * Getters
    */
-  function setNewName(name: string) {
-    if (savedName.value) previousNames.value.add(savedName.value);
+  const loggedIn = computed<boolean>(() => !!user.value)
 
-    savedName.value = name;
+
+  /**
+   * Setters
+   */
+  const setCookie = (name: string, payload: string, options: CookieOptions<any> = {}) => { // присвоить реферера
+    const isCookie = useCookie(name, options)
+    isCookie.value = payload
   }
-
-  // Состояние окна регистрации
-  const isOpenLogin = ref<boolean>(false)
-  // Переключатель окна регистрации
-  const toggleLogin = (payload: boolean) => {
+  const toggleLogin = (payload: boolean) => { // Переключатель окна регистрации
     isOpenLogin.value = payload
   }
 
+
+  /**
+  ? FIXME: http://v2.manga.ai:3000/auth/callback?email=yuki.animefull@gmail.com&password=4_;MhIyr[xnPFs;m
+   */
+  const fetchAuth = async (auth: Auth) => { // Авторизация пользователя
+    if(loggedIn.value) return
+
+    await useApiFetch(apiDomain + '/sanctum/csrf-cookie')
+    await useApiFetch(apiDomain + apiPrefix + '/login', {
+      method: 'POST',
+      body: auth
+    })
+    await fetchUser()
+
+    setCookie('auth', '1', {
+      maxAge: 60 * 60 * 24 * 365,
+    })
+  }
+
+  const fetchUser = async () => { // Получить информацию о пользователе
+    if(loggedIn.value) return
+
+    const { data: { value }, error: { value: error } } = await useApiFetch(apiDomain + apiPrefix + '/user')
+
+    if(!!error) return error
+    user.value = value as User
+  }
+
+  const fetchLogout = async () => {
+    await useApiFetch(apiDomain + apiPrefix + '/logout', {
+      method: 'POST',
+    })
+
+    user.value = null
+    setCookie('auth', '0', {
+      maxAge: -1,
+    })
+  }
+
+
   return {
+    user,
+    auth,
     isOpenLogin,
+
+    loggedIn,
+
+    setCookie,
     toggleLogin,
 
-    currentPost,
-    setNewName,
-    otherNames,
-    savedName,
-    fetchPostById,
-  };
-});
+    fetchAuth,
+    fetchUser,
+    fetchLogout,
+  }
+})
+
 
 if (import.meta.hot)
-  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot))

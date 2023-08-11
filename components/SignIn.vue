@@ -41,13 +41,17 @@ import Vk from '@/components/Icons/Vk.vue'
 import Google from '@/components/Icons/Google.vue'
 import Yandex from '@/components/Icons/Yandex.vue'
 
+import { useUserStore } from '@/stores/user'
 import { useModalStore } from '@/stores/modal'
 import { useUserSettings } from '@/composables/useUserSettings'
 
+const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
+const { setCookie } = useUserStore()
+
+const { fullPath } = useRoute()
 const isShow = ref<boolean>(true)
 const isLogin = ref<boolean>(true)
 const isLoaded = ref<boolean>(false)
-const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
 
 
 const getTitle = computed(() => {
@@ -71,9 +75,10 @@ const changeTitle = () => {
 }
 
 const socialLogin = async (service: string) => {
-  isLoaded.value = true
-  // window.location.href = `${apiDomain + apiPrefix}/auth/login/${service}`
-  // isLoaded.value = false
+  setCookie('reff', fullPath)
+  await new Promise(r => setTimeout(r, 60))
+
+  if(process.client) window.location.href = `${apiDomain + apiPrefix}/auth/login/${service}`
 }
 </script>
 
