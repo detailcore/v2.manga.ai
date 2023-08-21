@@ -2,6 +2,7 @@
   <el-dialog
     v-model="isShow"
     :width="getWidth"
+    :lock-scroll="false"
     title="Поиск по сайту"
   >
     <div class="text-center">

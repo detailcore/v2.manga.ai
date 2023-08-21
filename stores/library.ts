@@ -55,18 +55,18 @@ export const useLibraryStore = defineStore("library", () => {
   // Actions
   const fetchInputData = async () => {
     if(Object.keys(inputData.value).length == 0) {
-      const { data: { value } } = await useFetch(apiDomain + apiPrefix + `/create/post`)
+      const { data: { value } } = await useApiFetch(apiDomain + apiPrefix + `/create/post`)
       inputData.value = value
     }
   }
 
   const fetchInitPosts = async () => {
-    const { data: { value } } = await useFetch(apiDomain + apiPrefix + `/library`)
+    const { data: { value } } = await useApiFetch(apiDomain + apiPrefix + `/library`)
     postsData.value = value
   }
 
   const fetchPosts = async () => {
-    const { data: { value } } = await useFetch(apiDomain + apiPrefix + `/library`, {
+    const { data: { value } } = await useApiFetch(apiDomain + apiPrefix + `/library`, {
       method: 'POST',
       body: { ...selected.value }
     })

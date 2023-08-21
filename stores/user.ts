@@ -12,10 +12,11 @@ interface User {
   id_role: number
   name: string
   email: string
+  cover?: string
 }
 
 export const useUserStore = defineStore("user", () => {
-  const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
+  const { public: { apiDomain, apiPrefix, urlCoverUser } } = useRuntimeConfig()
 
   /**
    * State
@@ -29,6 +30,7 @@ export const useUserStore = defineStore("user", () => {
    * Getters
    */
   const loggedIn = computed<boolean>(() => !!user.value)
+  const isAdmin = computed<boolean>(() => user.value?.id_role === 1)
 
 
   /**
@@ -68,9 +70,13 @@ export const useUserStore = defineStore("user", () => {
 
     if(!!error) return error
     user.value = value as User
+
+    if(user.value?.cover) {
+      user.value.cover = urlCoverUser + user.value.id +'/'+ user.value.cover
+    }
   }
 
-  const fetchLogout = async () => {
+  const fetchLogout = async () => { 
     await useApiFetch(apiDomain + apiPrefix + '/logout', {
       method: 'POST',
     })
@@ -79,6 +85,7 @@ export const useUserStore = defineStore("user", () => {
     setCookie('auth', '0', {
       maxAge: -1,
     })
+    navigateTo('/')
   }
 
 
@@ -88,6 +95,7 @@ export const useUserStore = defineStore("user", () => {
     isOpenLogin,
 
     loggedIn,
+    isAdmin,
 
     setCookie,
     toggleLogin,

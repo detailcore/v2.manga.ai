@@ -7,7 +7,7 @@ export function useApiFetch<T>(url: string, options: UseFetchOptions<T> = {}) {
 
   let headers: any = {
     'Accept': 'application/json',
-    'referer': jsDomain + fullPath
+    'referer': jsDomain + fullPath,
   }
   const token = useCookie('XSRF-TOKEN')
 

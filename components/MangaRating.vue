@@ -47,13 +47,11 @@
 
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { useMangaStore } from '~/stores/manga'
 import { useDisplayUtils } from '~/composables/useDisplayUtils'
 
 const { number2Human } = useDisplayUtils()
 const { setRate } = useMangaStore()
-// const { manga } = storeToRefs(useMangaStore())
 
 interface Props {
   avg: string

@@ -76,38 +76,6 @@ export interface libraryInputData {
   orderBy?: orderType
 }
 
-/**
- * Данные тайтла по умолчанию
- */
-export interface Manga {
-  id: number
-  alias: string | string[]
-  adult_rank?: adultRankManga
-  artists?: typeName[]
-  authors?: typeName[]
-  chapter_count?: number
-  chapter_first?: number
-  comment_count?: number
-  cover?: string | string[]
-  created_at?: string
-  description?: string
-  formats?: typeName[]
-  genres?: typeName[]
-  publishers?: typeName[]
-  rating: ratingManga
-  status_of_releases?: typeName
-  status_of_translation?: typeName
-  tags?: typeName[]
-  teams: teamManga[]
-  title_alt?: string
-  title_eng?: string
-  title_orig?: string
-  title_rus?: string
-  type?: typeName
-  updated_at?: string
-  views?: number
-  year?: string
-}
 
 /**
  * Возрастной рейтинг тайтла
@@ -135,4 +103,112 @@ interface teamManga {
   id: number
   cover: string | null
   name: string
+}
+
+
+export type MangaTabs = 'desc' | 'chapters' | 'comm' | 'reviews'
+
+
+/**
+ * Стандартный Laravel разделитель на страницы
+ */
+export interface Paginate {
+  // data: [] // лучше не указывать т.к. везде разные данные
+  current_page: number
+  first_page_url: string
+  from: number
+  last_page: number
+  last_page_url: string
+  links: {
+    active: boolean
+    label: string
+    url: string | null
+  }[] | []
+  next_page_url: string | null
+  path: string
+  per_page: number
+  prev_page_url: string | null
+  to: number
+  total: number
+}
+
+
+/**
+ * Глава в посте
+ */
+export interface ChapterInPost {
+  id: number
+  id_branch?: number | null
+  id_user?: number
+  name: string
+  volume: number
+  chapter: string
+  updated_at: string
+  teams: TeamInChapter[] | []
+}
+
+
+/**
+ * Список глав в посте
+ */
+export interface ChaptersInPost extends Paginate {
+  data: ChapterInPost[]
+}
+
+
+/**
+ * Команда в главе
+ */
+export interface TeamInChapter {
+  checked_at: string
+  deleted_at: null | string
+  id: number
+  id_status: number
+  id_tmp?: number
+  name: string
+}
+
+/**
+ * Данные тайтла по умолчанию
+ */
+export interface Manga {
+  id: number
+  is_licensed?: boolean
+  alias: string
+  adult_rank?: adultRankManga
+  artists?: typeName[]
+  authors?: typeName[]
+  chapter_count?: number
+  chapter_first?: number
+  comment_count?: number
+  cover?: string | string[]
+  created_at?: string
+  description?: string
+  formats?: typeName[]
+  genres?: typeName[]
+  publishers?: typeName[]
+  rating: ratingManga
+  status_of_releases?: typeName
+  status_of_translation?: typeName
+  tags?: typeName[]
+  teams: teamManga[]
+  title_alt?: string
+  title_eng?: string
+  title_orig?: string
+  title_rus?: string
+  type?: typeName
+  updated_at?: string
+  views?: number
+  year?: string
+  mod_link?: string[]
+}
+
+export interface EditMangaCreateData {
+  tags: itemFilter[]
+  types: typeName[]
+  genres: itemFilter[]
+  formats: typeName[]
+  adult_ranks: typeName[]
+  status_of_releases: typeName[]
+  status_of_translations: typeName[]
 }

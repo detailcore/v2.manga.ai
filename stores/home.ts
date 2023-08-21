@@ -28,7 +28,7 @@ export const useHomeStore = defineStore("home", () => {
 
   // Actions
   const fetchAllData = async () => {
-    const { data: { value } } = await useFetch(apiDomain + apiPrefix + `/home/all`)
+    const { data: { value } } = await useApiFetch(apiDomain + apiPrefix + `/home/all`)
     allData.value = value
   }
 

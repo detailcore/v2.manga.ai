@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from "pinia"
-import { Manga } from "services/interfaces"
+import { Manga, MangaTabs } from "services/interfaces"
 import { useDisplayUtils } from '~/composables/useDisplayUtils'
 
 
@@ -9,10 +9,7 @@ export const useMangaStore = defineStore("manga", () => {
 
   // State
   const manga = ref<Manga>({} as Manga)
-  // const manga = ref<any>({})
-  // const manga = ref<any>({} as Manga)
-  // const manga: Manga = ref<any>({})
-  // type selectedKeyType = 'adult_ranks' | 'formats' | 'genres' | 'status_of_releases' | 'status_of_translations' | 'tags' | 'types' //  "adult_ranks" | "formats" ...
+  const mangaTab = ref<string>('' as MangaTabs)
 
   // Getters
   const inputDataLoaded = computed(() => {
@@ -53,10 +50,13 @@ export const useMangaStore = defineStore("manga", () => {
       manga.value.rating.avg = avgValue(manga.value.rating.stars)
     }
   }
+  const setTab = (name: MangaTabs) => {
+    mangaTab.value = name
+  }
 
   // Actions
   const fetchManga = async (alias: string | string[]) => {
-    const { data: { value } } = await useFetch(apiDomain + apiPrefix + `/post/${alias}`)
+    const { data: { value } } = await useApiFetch(apiDomain + apiPrefix + `/post/${alias}`)
     manga.value = value as Manga
   }
 
@@ -66,7 +66,7 @@ export const useMangaStore = defineStore("manga", () => {
    * @param num Rating value
    */
   const fetchRate = async (id: number, num: number) => {
-    const { data: { value } } = await useFetch(apiDomain + apiPrefix + `/post/${id}/rating`, {
+    const { data: { value } } = await useApiFetch(apiDomain + apiPrefix + `/post/${id}/rating`, {
       method: 'POST',
       body: { id: id, value: num }
     })
@@ -76,8 +76,10 @@ export const useMangaStore = defineStore("manga", () => {
 
   return {
     manga,
+    mangaTab,
 
     setRate,
+    setTab,
 
     fetchManga,
   }

@@ -12,9 +12,9 @@ export const useModalStore = defineStore("modal", () => {
 
   // Состояние окон
   const isOpen = reactive({
-    user: false,
-    login: false,
-    search: false,
+    user: false, // пользователь
+    login: false, // авторизация
+    search: false, // быстрый поиск
   })
 
   // Переключатель окон
