@@ -16,7 +16,11 @@
         <el-button v-if="isDark" :icon="ElIconSunny" circle @click="setColorMode()" class="mr-2" />
         <el-button v-if="!isDark" :icon="ElIconMoon" circle @click="setColorMode()" class="mr-2" />  
         <el-button v-if="0" :icon="ElIconAvatar" circle />
-        <el-button :icon="Login" round @click="toggleModal({ name: 'login', value: true })">Войти</el-button>
+        <el-button v-if="!loggedIn" :icon="Login" round @click="toggleModal({ name: 'login', value: true })">Войти</el-button>
+
+        <client-only v-else>
+          <UserDropdown />
+        </client-only>
       </el-col>
 
     </el-row>
@@ -25,11 +29,14 @@
 
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '~/stores/user'
 import { useModalStore } from '@/stores/modal'
 import Login from '@/components/Icons/Login.vue'
 import Bookshelf from '@/components/Icons/Bookshelf.vue'
 import { useUserSettings } from '@/composables/useUserSettings'
 
+const { loggedIn } = storeToRefs(useUserStore())
 const { toggleModal } = useModalStore()
 const { setColorMode, isDark } = useUserSettings()
 </script>
