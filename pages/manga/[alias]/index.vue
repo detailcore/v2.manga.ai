@@ -1,120 +1,169 @@
 <template>
-  <div class="manga">
-    <el-image class="parallax" :src="coverUrl" :alt="manga.title_rus" />
+  <el-row>
+    <el-col 
+      :xs="{ span: 24 }"
+      :lg="{ span: 18, offset: 3 }" 
+      class="manga"
+    >
+      <el-image class="parallax" :src="coverUrl" :alt="manga.title_rus" />
 
-    <div class="main flex justify-between px-3">
-      <div class="cover">
-        <el-image class="avatar" :src="coverUrl" :alt="manga.title_rus" />
+      <div class="main flex justify-between px-3 pb-4">
+        <div class="cover">
+          <el-image class="avatar" :src="coverUrl" :alt="manga.title_rus" />
 
-        <el-button class="mt-2" type="success" :icon="Bookopen" style="width: 100%;">Читать</el-button>
+          <el-button class="mt-2 read" type="success" :icon="Bookopen" style="width: 100%;">Читать</el-button>
 
-        <client-only>
-          <el-dropdown
-            :trigger="'click'" 
-            style="width: 100%;"
-          >
-            <el-button 
-              class="mt-2" 
-              :icon="ElIconArrowDown" 
+          <client-only>
+            <el-dropdown
+              :trigger="'click'" 
               style="width: 100%;"
-              plain 
             >
-              В закладки
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item :icon="(true) ? ElIconPlus : ElIconMinus">Action 1</el-dropdown-item>
-                <el-dropdown-item :icon="(false) ? ElIconPlus : ElIconMinus">Action 2</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </client-only>
+              <el-button 
+                class="mt-2" 
+                :icon="ElIconArrowDown" 
+                style="width: 100%;"
+                plain 
+              >
+                В закладки
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :icon="(true) ? ElIconPlus : ElIconMinus">Action 1</el-dropdown-item>
+                  <el-dropdown-item :icon="(false) ? ElIconPlus : ElIconMinus">Action 2</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </client-only>
 
-        <el-button class="mt-2" :icon="ElIconWarningFilled" plain style="width: 100%;">Пожаловаться</el-button>
+          <el-button class="mt-2" :icon="ElIconWarningFilled" plain style="width: 100%;">Пожаловаться</el-button>
 
-        <div class="teams" v-if="manga.teams.length">
-          <div class="title my-4">Переводчики</div>
-          <TeamItem 
-            v-for="{ id, name, cover } in manga.teams" 
-            :key="id"
-            :id="id"
-            :name="name"
-            :cover="cover"
-          />
+          <div 
+            class="teams" 
+            v-if="manga.teams.length && !manga.is_licensed"
+            :style="{ 'max-height': teamsMaxHeight }"
+          >
+            <div class="title mt-4">Переводчики</div>
+            <div class="substatus mb-2 line-clamp-1" style="color: var(--el-color-success);">
+              Перевод {{ manga.status_of_translation?.name }}
+            </div>
+            <TeamItem 
+              v-for="{ id, name, cover } in manga.teams" 
+              :key="id"
+              :id="id"
+              :name="name"
+              :cover="cover"
+            />
+          </div>
+          <div class="flex justify-center m-2">
+            <el-text 
+              class="more"
+              v-if="(manga.teams.length > 2 && teamsMaxHeight == '200px')"
+              @click="teamsMaxHeight = 'none'"
+            >
+              Показать еще +{{ manga.teams.length-2 }}
+            </el-text>
+            <el-text v-if="(teamsMaxHeight != '200px')" class="more" @click="teamsMaxHeight = '200px'">Скрыть</el-text>
+          </div>
+        </div>
 
+        <div class="description flex flex-col w-100%">
+          <div class="names flex flex-col">
+            <h1 class="line-clamp-2">{{ manga.title_rus ? manga.title_rus : manga.title_eng }}</h1>
+            <span class="subname mt-4 line-clamp-2" v-if="manga.title_orig">{{ manga.title_orig }}</span>
+            <!-- <span class="subtitle mt-2" v-if="manga.title_alt">{{ manga.title_alt }}</span> -->
+          </div>
+
+          <el-breadcrumb separator="/" class="breadcrumb flex mt-4">
+            <el-breadcrumb-item v-if="adultRank">
+              <el-tag effect="dark" class="rank" type="danger">{{ adultRank }}</el-tag>
+            </el-breadcrumb-item>
+            <el-breadcrumb-item v-if="manga.type?.name">{{ manga.type?.name }}</el-breadcrumb-item>
+            <el-breadcrumb-item v-if="manga.year">{{ manga.year }}</el-breadcrumb-item>
+            <client-only>
+              <el-breadcrumb-item v-if="manga.status_of_releases?.id">
+                <el-tag effect="plain" :type="typeOfRelease" round>
+                  <el-tooltip content="Статус тайтла" placement="top">
+                    {{ manga.status_of_releases.name }}
+                  </el-tooltip>
+                </el-tag>
+              </el-breadcrumb-item>
+            </client-only>
+            <el-breadcrumb-item v-if="manga.rating?.avg" class="rating">
+              <el-icon class="mr-1" style="color: var(--el-color-warning);">
+                <ElIconStarFilled/>
+              </el-icon>
+              <el-text size="large" class="avg" @click="ratingShow = true">
+                {{ (+manga.rating?.avg).toFixed(2) }}
+                <el-text size="small" class="amount">{{ number2Human(manga.rating.amount) }}</el-text>
+              </el-text>
+            </el-breadcrumb-item>
+          </el-breadcrumb>
+
+          <MangaTabs />
+
+          <div class="desc">
+            
+
+            <!-- <div class="info">
+              <div>{{ manga.authors }}</div>
+              <div>{{ manga.artists }}</div>
+              <div>{{ manga.chapter_count }}</div>
+            </div> -->
+
+          </div>
         </div>
 
       </div>
 
-      <div class="description flex flex-col w-100%">
-        <div class="names flex flex-col">
-          <h1 class="line-clamp-2">{{ manga.title_rus }}</h1>
-          <span class="subname mt-4 line-clamp-2" v-if="manga.title_orig">{{ manga.title_orig }}</span>
-          <!-- <span class="subtitle mt-2" v-if="manga.title_alt">{{ manga.title_alt }}</span> -->
+      <div class="submain px-3 pb-4">
+        <div class="flex mb-4" v-if="manga.genres">
+          <div class="name flex items-center">Другие названия:</div>
+          <div class="titles">
+            <span v-if="manga.title_eng">{{ manga.title_eng }} ||</span> {{ manga.title_alt }}
+          </div>
         </div>
 
-        <el-breadcrumb separator="/" class="breadcrumb flex mt-4">
-          <el-breadcrumb-item v-if="adultRank">
-            <el-tag effect="dark" class="rank" type="danger">{{ adultRank }}</el-tag>
-          </el-breadcrumb-item>
-          <el-breadcrumb-item v-if="manga.type?.name">{{ manga.type?.name }}</el-breadcrumb-item>
-          <el-breadcrumb-item v-if="manga.year">{{ manga.year }}</el-breadcrumb-item>
-          <client-only>
-            <el-breadcrumb-item v-if="manga.status_of_releases?.id">
-              <el-tag effect="plain" :type="typeOfRelease">
-                <el-tooltip content="Статус тайтла" placement="top">
-                  {{ manga.status_of_releases.name }}
-                </el-tooltip>
-              </el-tag>
-            </el-breadcrumb-item>
-          </client-only>
-          <el-breadcrumb-item v-if="manga.rating?.avg" class="rating">
-            <el-icon class="mr-1" style="color: var(--el-color-warning);">
-              <ElIconStarFilled/>
-            </el-icon>
-            <el-text size="large" class="avg" @click="ratingShow = true">
-              {{ manga.rating?.avg }}
-              <el-text size="small" class="amount">{{ number2Human(manga.rating.amount) }}</el-text>
-            </el-text>
-          </el-breadcrumb-item>
-        </el-breadcrumb>
+        <div class="flex mb-4" v-if="manga.formats">
+          <div class="name flex items-center">Формат:</div>
+          <div class="list">
+            <span v-for="{ id, name } in manga.formats" :key="id">{{ name }}</span>
+          </div>
+        </div>
 
-        <div class="desc" itemscope itemtype="http://schema.org/CreativeWork">
-          <div v-if="manga.description" class="text mt-5">{{ manga.description }}</div>
-          <div v-else class="text mt-5">Описание отсутствует</div>
+        <div class="flex mb-4" v-if="manga.genres">
+          <div class="name flex items-center">Жанры:</div>
+          <div class="list">
+            <span v-for="{ id, name } in manga.genres" :key="id">{{ name }}</span>
+          </div>
+        </div>
 
-          <div class="stat">
-            Статистика:
-            рейтинг
-            кто куда проголосовал
-            Общее кол-во голосов
-            кол-во коментов
-            кол-во глав
-            просмотров
-            год выпуска
+        <div class="flex mb-4" v-if="manga.tags">
+          <div class="name flex items-center">Теги:</div>
+          <div class="list">
+            <span v-for="{ id, name } in manga.tags" :key="id">{{ name }}</span>
           </div>
         </div>
       </div>
 
-    </div>
+      <client-only>
+        <el-dialog
+          v-model="ratingShow"
+          :width="sizeDialog"
+          :lock-scroll="false"
+          title="Оценки пользователей"
+        >
+          <MangaRating
+            v-if="manga.rating?.avg"
+            :avg="manga.rating.avg"
+            :amount="manga.rating.amount"
+            :stars="manga.rating.stars"
+            :your="manga.rating.your"
+          />
+        </el-dialog>
+      </client-only>
 
-    <client-only>
-      <el-dialog
-        v-model="ratingShow"
-        :width="sizeDialog"
-        :lock-scroll="false"
-        title="Оценки пользователей"
-      >
-        <MangaRating
-          v-if="manga.rating?.avg"
-          :avg="manga.rating.avg"
-          :amount="manga.rating.amount"
-          :stars="manga.rating.stars"
-          :your="manga.rating.your"
-        />
-      </el-dialog>
-    </client-only>
-  </div>
+    </el-col>
+  </el-row>
 </template>
 
 
@@ -125,12 +174,17 @@ import { useMangaStore } from '~/stores/manga'
 import { useUserSettings } from '~/composables/useUserSettings'
 import { useDisplayUtils } from '~/composables/useDisplayUtils'
 
+// definePageMeta({
+//   layout: 'fullstory'
+// })
+
 const { params: { alias } } = useRoute()
 const { public: { urlCoverTitle } } = useRuntimeConfig()
 const { sizeDialog } = useUserSettings()
 const { number2Human } = useDisplayUtils()
 
-const ratingShow = ref(false)
+const ratingShow = ref<boolean>(false)
+const teamsMaxHeight = ref<any>('200px')
 
 const coverUrl = computed(() => urlCoverTitle + manga.value.id + '/' + manga.value.cover)
 const adultRank = computed(() => {
@@ -210,9 +264,10 @@ await fetchManga(alias)
   }
 
   .main {
+    min-height: 340px;
+    border-radius: 2px 2px 0 0;
     background-color: var(--el-bg-color-overlay);
     background: linear-gradient(0deg, var(--el-bg-color-overlay), 99%, transparent 105%);
-    min-height: 530px;
     @media (max-width: 650px) {
       flex-direction: column-reverse;
     }
@@ -222,7 +277,7 @@ await fetchManga(alias)
       margin-right: 20px;
       margin-top: -200px;
       max-width: 300px;
-      position: relative;
+      // position: relative; // под вопросом
       img {
         border-radius: 2px;
       }
@@ -246,6 +301,45 @@ await fetchManga(alias)
             display: none;
           }
         }
+      }
+      .read {
+        position: sticky;
+        top: 12px;
+        z-index: 1;
+      }
+    }
+    .teams {
+      overflow: hidden;
+      .substatus {
+        color: var(--el-text-color-regular);
+        font-size: 0.75rem;
+        font-weight: 100;
+        text-transform: uppercase;
+      }
+    }
+    .more {
+      // max-height: teamsMaxHeight;
+      position: relative;
+      cursor: pointer;
+    }
+    .tabs {
+      .el-tabs__header {
+        text-transform: uppercase;
+        .el-tabs__item {
+          @media (max-width: 768px) {
+            padding: 0 12px;
+            padding-left: 0;
+          }
+        }
+      }
+      .text {
+        font-size: 1.1rem;
+        text-indent: 20px;
+        line-height: 1.5;
+        text-align: justify;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        word-break: break-word;
       }
     }
     .description {
@@ -295,16 +389,32 @@ await fetchManga(alias)
           }
         }
       }
-      .desc {
-        .text {
-          // font-size: 1.1rem;
-          text-indent: 20px;
-          line-height: 1.5;
-          text-align: justify;
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          word-break: break-word;
-        }
+    }
+  }
+
+  .submain {
+    margin-top: -1px;
+    background-color: var(--el-bg-color-overlay);
+    .name {
+      width: 84px;
+      min-width: 84px;
+    }
+    .titles {
+      line-height: 1.5;
+    }
+    .list {
+      line-height: 2;
+      span {
+        border: 1px solid var(--el-border-color);
+        border-radius: 4px;
+        padding: 2px 4px;
+        margin-right: 4px;
+        display: inline-flex;
+        line-height: 1.25;
+        text-transform: capitalize;
+        // &:hover {
+        //   background-color: var(--el-border-color);
+        // } 
       }
     }
   }
