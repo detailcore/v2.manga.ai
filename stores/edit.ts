@@ -1,9 +1,9 @@
 import { acceptHMRUpdate, defineStore } from "pinia"
-import { EditMangaCreateData, typeName } from "services/interfaces"
+import { FindKeys } from "services/types"
+import { EditMangaCreateData, typeName, ResponseApi } from "services/interfaces"
 
 export const useEditStore = defineStore("edit", () => {
   const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
-  type FindKeys = 'authors' | 'artists' | 'publishers' | 'teams'
 
   // State
   const editMangaCreateData = ref<EditMangaCreateData>({} as EditMangaCreateData)
@@ -23,18 +23,11 @@ export const useEditStore = defineStore("edit", () => {
 
   // Actions
   const fetchSendData = async (id: number, data: any) => {
-    interface Response {
-      msg: string
-      status: string
-    }
-    const { data: { value } } = await useApiFetch(apiDomain + apiPrefix + `/post/${id}`, {
+    const res = await useApiFetch(apiDomain + apiPrefix + `/post/${id}`, {
       method: 'POST',
       body: data,
     })
-    const res = value as Response
-
-    if(res?.status == 'ok') return true
-    return false
+    return res.data.value ? res.data.value as ResponseApi : { status: res.status.value, msg: res.error.value?.data.message }
   }
 
   const fetchCreateDate = async () => {

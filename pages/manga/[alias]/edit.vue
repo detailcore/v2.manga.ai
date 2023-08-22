@@ -83,7 +83,10 @@
     <div class="item">
       <div class="half mb-4">
         <div class="part my-1">
-          <div class="subtitle mb-1">Автор</div>
+          <div class="subtitle flex justify-between mb-1">
+            <b>Автор(ы)</b>
+            <el-link type="warning" :underline="false" @click="createNew('authors')">создать</el-link>
+          </div>
           <client-only>
             <el-select
               v-model="selected.authors"
@@ -106,7 +109,10 @@
           </client-only>
         </div>
         <div class="part my-1">
-          <div class="subtitle mb-1">Художник</div>
+          <div class="subtitle flex justify-between mb-1">
+            <b>Художник(и)</b>
+            <el-link type="warning" :underline="false" @click="createNew('artists')">создать</el-link>
+          </div>
           <client-only>
             <el-select
               v-model="selected.artists"
@@ -134,7 +140,10 @@
     <div class="item">
       <div class="half mb-4">
         <div class="part my-1">
-          <div class="subtitle mb-1">Команды переводчиков</div>
+          <div class="subtitle flex justify-between mb-1">
+            <b>Команды переводчиков</b>
+            <el-link type="warning" :underline="false" @click="createNew('teams')">создать</el-link>
+          </div>
           <client-only>
             <el-select
               v-model="selected.teams"
@@ -157,7 +166,10 @@
           </client-only>
         </div>
         <div class="part my-1">
-          <div class="subtitle mb-1">Издатель</div>
+          <div class="subtitle flex justify-between mb-1">
+            <b>Издатель(и)</b>
+            <el-link type="warning" :underline="false" @click="createNew('publishers')">создать</el-link>
+          </div>
           <client-only>
             <el-select
               v-model="selected.publishers"
@@ -185,7 +197,7 @@
     <div class="item">
       <div class="half mb-4">
         <div class="part my-1">
-          <div class="subtitle mb-1">Формат</div>
+          <div class="subtitle mb-1">Формат(ы)</div>
           <client-only>
             <el-select v-model="selected.formats" value-key="id" class="m-2" placeholder="Формат выпуска" multiple>
               <el-option
@@ -244,7 +256,7 @@
     <div class="item">
       <div class="half mb-4">
         <div class="part my-1">
-          <div class="subtitle mb-1">Статус произведения</div>
+          <div class="subtitle mb-1">Статус тайтла</div>
           <client-only>
             <el-select v-model="selected.status_of_releases" value-key="id" class="m-2" placeholder="Статус произведения">
               <el-option
@@ -291,7 +303,7 @@
             v-for="num in selected.mod_link?.length" 
             :key="num" 
             v-model="selected.mod_link[num-1]" 
-            :placeholder="`Ссылки на источник ${num}`"
+            :placeholder="`Ссылка на источник ${num}`"
             class="mb-2"
           >
             <template #append v-if="num > 1">
@@ -330,16 +342,69 @@
       <el-button class="mb-2" type="success" @click="fetchUpdate">Сохранить</el-button>
     </div>
 
+    <client-only>
+      <el-dialog
+        v-model="createShow"
+        :title="'Добавить ' + createTitle"
+        :width="sizeDialog"
+        :lock-scroll="false"
+      >
+        <div class="create-body -mt-6">
+          <div class="item">
+            <div class="subtitle mb-1"><b style="color: red;">*</b> Название(имя) на русском., если есть</div>
+            <el-input v-model="createData.name_rus" placeholder="На русском" />
+          </div>
+          <div class="item my-2">
+            <div class="subtitle mb-1"><b style="color: red;">*</b> Название(имя) на англ., если есть (без иероглифов)</div>
+            <el-input v-model="createData.name_eng" placeholder="На английском" />
+          </div>
+          <div class="item my-2">
+            <div class="subtitle mb-1">Другие названия(имена), если есть разделенные двумя чертами || (допускаются иероглифы)</div>
+            <el-input v-model="createData.name_alt" placeholder="Альтернативняе названия (имена)" />
+          </div>
+          <div class="item my-2">
+            <div class="subtitle mb-1">Описание, если есть</div>
+            <el-input v-model="createData.description" type="textarea" :autosize="{ minRows: 3 }" placeholder="описание" />
+          </div>
+          <div class="item my-2" v-if="createCurrentTitle != 'teams'">
+            <div class="subtitle mb-1">Веб-сайт, если есть</div>
+            <el-input v-model="createData.website" placeholder="Ссылка на сайт" />
+          </div>
+          <div class="item my-2" v-if="createCurrentTitle != 'teams'">
+            <div class="subtitle mb-1">Социальная сеть, если есть</div>
+            <el-input v-model="createData.social" placeholder="Ссылка на соц. сеть" />
+          </div>
+          <div class="item my-2">
+            <el-text class="my-1" type="danger"><b>*</b> -- одно из названий обязательно к заполнению</el-text>
+          </div>
+
+        </div>
+
+        <div class="item flex justify-evenly -mb-4">
+          <el-button type="danger" @click="createReset">Отменить</el-button>
+          <el-button type="success" @click="fetchCreate">Сохранить</el-button>
+        </div>
+      </el-dialog>
+    </client-only>
+
     </el-col>
   </el-row>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { ElNotification } from 'element-plus'
+
+import { FindKeys } from "services/types"
+import { Manga, typeName, CreateData, ResponseApi } from "services/interfaces"
+
 import { useUserStore } from '~/stores/user'
 import { useEditStore } from '~/stores/edit'
 import { useMangaStore } from '~/stores/manga'
-import { Manga, typeName } from "services/interfaces"
+import { useCreateStore } from '~/stores/create'
+import { useUserSettings } from '~/composables/useUserSettings'
+
+const { sizeDialog } = useUserSettings()
 const { params: { alias } } = useRoute()
 const { public: { urlCoverTitle } } = useRuntimeConfig()
 
@@ -350,16 +415,21 @@ definePageMeta({
 const { fetchManga } = useMangaStore()
 const { manga } = storeToRefs(useMangaStore())
 const { isAdmin } = storeToRefs(useUserStore())
-const { fetchSendData, fetchCreateDate, fetchFindData, setInitData } = useEditStore()
 const { editMangaCreateData, findData } = storeToRefs(useEditStore())
+const { fetchSendData, fetchCreateDate, fetchFindData, setInitData } = useEditStore()
+const { fetchCreatePeople, fetchCreateTeams, fetchCreatePublishers } = useCreateStore()
 
 
 const cover = ref() // $ref DOM Element
 const coverUrl = ref('')
-const loading = ref(false)
 const idStatus = ref('')
-const selectedCover = ref<string | File>('')
+const loading = ref(false)
+const createTitle = ref('')
+const createShow = ref(false)
 const selected = ref<Manga>({} as Manga)
+const selectedCover = ref<string | File>('')
+const createData = ref<CreateData>({} as CreateData)
+const createCurrentTitle = ref<FindKeys>('authors' as FindKeys)
 
 const imageUrl = computed<string>(() => urlCoverTitle + manga.value.id + '/' + manga.value.cover)
 
@@ -400,11 +470,7 @@ const isOriginalStr = (key: keyof Manga) => (manga.value[key] as string).trim() 
 const isOriginalObj = (key: 'adult_rank' | 'status_of_releases' | 'status_of_translation' | 'type') => manga.value[key]?.id === selected.value[key]?.id
 const isOriginalArr = (key: keyof Manga) => JSON.stringify((manga.value[key] as typeName[]).map(i => i.id)) === JSON.stringify((selected.value[key] as typeName[]).map(i => i.id))
 
-const getIdsFromArrays = (arr: typeName[]) => {
-  return arr.length ? [... new Set(arr.map(i => i.id))].join() : '-1'
-  // const str: string = [... new Set(arr.map(i => i.id))].join() // '1,2,3,4'
-  // return str === '' ? '-1' : str
-}
+const getIdsFromArrays = (arr: typeName[]) => arr.length ? [... new Set(arr.map(i => i.id))].join() : '-1'
 
 
 const fetchUpdate = async (status = 0) => {
@@ -443,14 +509,94 @@ const fetchUpdate = async (status = 0) => {
     data.append('status', '2')
   }
 
-  await fetchSendData(manga.value.id, data) // Отправляем данные
+  const res: ResponseApi = await fetchSendData(manga.value.id, data) // Отправляем данные
+  if(res.status == 'ok') {
+    ElNotification({
+      title: 'Успешно!',
+      message: res.msg,
+      type: 'success',
+    })
+    coverUrl.value = ''
+    await initData() //* Инициируем новые данные
+    cover.value.style = {} 
+
+  } else {
+    ElNotification({
+      title: 'Ошибка!',
+      message: res.msg,
+      type: 'error',
+    })
+  }
+}
+
+const createNew = (item: FindKeys) => {
+  createShow.value = true
+  createCurrentTitle.value = item
+  switch (item) {
+    case 'authors':
+      createTitle.value = 'автора'
+      break;
+    case 'artists':
+      createTitle.value = 'художника'
+      break;
+    case 'publishers':
+      createTitle.value = 'издателя'
+      break;
+    case 'teams':
+      createTitle.value = 'команду'
+      break;
+  }
+}
+
+const createReset = () => {
+  createShow.value = false
+  createData.value = {}
+}
+
+const fetchCreate = async () => {
+  if((createData.value.name_rus == undefined && createData.value.name_eng == undefined) || (createData.value.name_rus == '' && createData.value.name_eng == '')) {
+    ElNotification({
+      title: 'Ошибка!',
+      message: 'Одно из названий на английском или русском обязательно к заполнению',
+      type: 'error',
+    })
+    return
+  }
+
+  let res = {} as ResponseApi;
+  if(createCurrentTitle.value == 'authors' || createCurrentTitle.value == 'artists') {
+    res = await fetchCreatePeople(createData.value) as ResponseApi
+  }
+  if(createCurrentTitle.value == 'teams') {
+    res = await fetchCreateTeams(createData.value) as ResponseApi
+  }
+  if(createCurrentTitle.value == 'publishers') {
+    res = await fetchCreatePublishers(createData.value) as ResponseApi
+  }
+  if(res.status == 'ok') {
+    ElNotification({
+      title: 'Успешно!',
+      message: res.msg,
+      type: 'success',
+    })
+  } else {
+    ElNotification({
+      title: 'Ошибка!',
+      message: res.msg,
+      type: 'error',
+    })
+  }
+  createReset()
 }
 
 
 /**
  * Инициализация данных
  */
-const initData = () => {
+const initData = async () => {
+  await fetchManga(alias)
+  if(editMangaCreateData.value.tags == undefined ) await fetchCreateDate()
+
   selected.value.alias = manga.value.alias
 
   selected.value.title_rus = manga.value.title_rus
@@ -488,9 +634,7 @@ const initData = () => {
   idStatus.value = ''
 }
 
-if(!manga.value.id) await fetchManga(alias)
-await fetchCreateDate()
-initData() // выполнить в конце файла
+await initData() // выполнить в конце файла
 </script>
 
 
