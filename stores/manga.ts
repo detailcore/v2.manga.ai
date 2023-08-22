@@ -1,5 +1,6 @@
 import { acceptHMRUpdate, defineStore } from "pinia"
-import { Manga, MangaTabs } from "services/interfaces"
+import { MangaTabs } from "services/types"
+import { Manga } from "services/interfaces"
 import { useDisplayUtils } from '~/composables/useDisplayUtils'
 
 

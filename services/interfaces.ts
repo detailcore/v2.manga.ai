@@ -1,3 +1,6 @@
+import { sortType, orderType } from "services/types"
+
+
 /**
  * Аватарка тайтла
  */
@@ -32,17 +35,6 @@ export interface searchItem {
   updated_at: string
   year?: string | number
 }
-
-/**
- * Сортировать по: 
- * рейтингу | кол-ву оценок | просмотрам | дате добавления | дате обновления | кол-ву глав | случано
- */
-export type sortType = 'rating' | 'rate' | 'views' | 'created_at' | 'updated_at' | 'chapter_count' | 'random'
-
-/**
- * 'ASC' - По возрастанию | 'DESC' - По убыванию
- */
-export type orderType = 'asc' | 'desc' | ''
 
 /**
  * Элемент фильтра
@@ -104,9 +96,6 @@ interface teamManga {
   cover: string | null
   name: string
 }
-
-
-export type MangaTabs = 'desc' | 'chapters' | 'comm' | 'reviews'
 
 
 /**
@@ -211,4 +200,27 @@ export interface EditMangaCreateData {
   adult_ranks: typeName[]
   status_of_releases: typeName[]
   status_of_translations: typeName[]
+}
+
+
+/**
+ * Создать нового Автора, Художника, Издателя, Команду переводчиков
+ */
+export interface CreateData {
+  id_tmp?: string | number
+  name_eng?: string
+  name_rus?: string
+  name_alt?: string
+  description?: string
+  website?: string
+  social?: string
+}
+
+
+/**
+ * Стандартный успешный ответ от сервера
+ */
+export interface ResponseApi {
+  msg?: string
+  status?: string
 }

@@ -90,7 +90,7 @@
 import { storeToRefs } from 'pinia'
 import { useLibraryStore } from '@/stores/library'
 import { useUserSettings } from '@/composables/useUserSettings'
-import { sortType, orderType } from '@/services/interfaces'
+import { sortType, orderType } from '@/services/types'
 
 const { userWidth, sizeDrawer } = useUserSettings()
 const { setSelectionOptions, fetchInitPosts } = useLibraryStore()

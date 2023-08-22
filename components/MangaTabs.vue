@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import type { TabsPaneContext } from 'element-plus'
-import { MangaTabs } from "services/interfaces"
+import { MangaTabs } from "services/types"
 import { useMangaStore } from '~/stores/manga'
 import { useChaptersStore } from '~/stores/chapters'
 
