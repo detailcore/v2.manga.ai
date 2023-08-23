@@ -221,6 +221,9 @@ export interface CreateData {
  * Стандартный успешный ответ от сервера
  */
 export interface ResponseApi {
+  id?: number
+  alias?: string
   msg?: string
+  message?: string
   status?: string
 }

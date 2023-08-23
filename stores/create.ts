@@ -12,6 +12,13 @@ export const useCreateStore = defineStore("create", () => {
   // Setters
 
   // Actions
+  const fetchCreateNewTitle = async (data: any) => {
+    const res = await useApiFetch(apiDomain + apiPrefix + `/post`, {
+      method: 'POST',
+      body: data,
+    })
+    return res.data.value ? res.data.value as ResponseApi : { status: res.status.value, msg: res.error.value?.data.message }
+  }
   const fetchCreatePeople = async (data: CreateData) => {
     const res = await useApiFetch(apiDomain + apiPrefix + '/people', {
       method: 'POST',
@@ -35,6 +42,7 @@ export const useCreateStore = defineStore("create", () => {
   }
 
   return {
+    fetchCreateNewTitle,
     fetchCreatePeople,
     fetchCreateTeams,
     fetchCreatePublishers,

@@ -11,8 +11,8 @@
             <div class="text-truncate">{{ user?.name }}</div>
           </div>
         </el-dropdown-item>
-        <el-dropdown-item :icon="ElIconPlus">Тайтл</el-dropdown-item>
-        <el-dropdown-item :icon="ElIconPlus">Команду</el-dropdown-item>
+        <el-dropdown-item @click="createPost" :icon="ElIconPlus">Тайтл</el-dropdown-item>
+        <!-- <el-dropdown-item :icon="ElIconPlus">Команду</el-dropdown-item> -->
         <el-dropdown-item :icon="ElIconSetting">Настройки</el-dropdown-item>
         <!-- <el-dropdown-item>Всё моё</el-dropdown-item> -->
         <el-dropdown-item v-if="isAdmin" :icon="ElIconEditPen">Админка</el-dropdown-item>
@@ -38,6 +38,12 @@ import { useUserStore } from '@/stores/user'
 
 const { user, isAdmin } = storeToRefs(useUserStore())
 const { fetchLogout } = useUserStore()
+
+const createPost = async () => {
+  await navigateTo({
+    name: 'create-title',
+  })
+}
 </script>
 
 

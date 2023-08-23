@@ -81,9 +81,49 @@ function updateTime(time: string) {
 }
 
 
+/**
+ * Создание Алиаса из названия
+ * @returns string translit
+ */
+function getAliasByTitles(titileRus: string = '', titleEng: string = ''){
+  let word = ''
+
+  if(titileRus) {
+    word = titileRus
+  } else {
+    word = titleEng
+  }
+  const converter = {
+    'а': 'a',    'б': 'b',    'в': 'v',    'г': 'g',    'д': 'd',
+    'е': 'e',    'ё': 'e',    'ж': 'zh',   'з': 'z',    'и': 'i',
+    'й': 'y',    'к': 'k',    'л': 'l',    'м': 'm',    'н': 'n',
+    'о': 'o',    'п': 'p',    'р': 'r',    'с': 's',    'т': 't',
+    'у': 'u',    'ф': 'f',    'х': 'h',    'ц': 'c',    'ч': 'ch',
+    'ш': 'sh',   'щ': 'sch',  'ь': '',     'ы': 'y',    'ъ': '',
+    'э': 'e',    'ю': 'yu',   'я': 'ya'
+  };
+  word = word.toLowerCase();
+  let answer = '';
+
+  for (const sign of word) {
+    if(converter[sign as keyof typeof converter] == undefined) {
+      answer += sign
+    } else {
+      answer += converter[sign as keyof typeof converter]
+    }
+  }
+
+  answer = answer.replace(/[^-0-9a-z]/g, '-');
+  answer = answer.replace(/[-]+/g, '-');
+  answer = answer.replace(/^\-|-$/g, '');
+  return answer
+}
+
+
   return {
-    mergeDuplicates,
     showDate,
     updateTime,
+    mergeDuplicates,
+    getAliasByTitles,
   }
 }

@@ -3,21 +3,11 @@
     <el-col 
       :xs="{ span: 24 }"
       :lg="{ span: 18, offset: 3 }" 
-      class="manga-edit py-4 px-2"
+      class="manga-create py-4 px-2"
     >
 
     <div class="title flex items-center my-2">
-      Редактирование
-      <el-icon>
-        <ElIconCaretRight/>
-      </el-icon>
-      <el-link 
-        class="title line-clamp-1" 
-        :href="'/manga/' + alias" 
-        :underline="false"
-      >
-        {{ manga.title_rus ? manga.title_rus : manga.title_eng }}
-      </el-link>
+      Добавить произведение
     </div>
     <div class="subtitle mb-4">Изменяйте только необходимые поля</div>
 
@@ -26,10 +16,8 @@
       <input class="hidden" id="cover" type='file' accept="image/*" @change="onChangeCover" />
       <div class="flex flex-row items-center">
         <label for="cover" class="cover-image" ref="cover">
-          <el-image v-if="manga.cover && coverUrl" :src="coverUrl" />
           <span class="text py-4 px-2">Нажмите сюда для выбора изображения</span>
         </label>
-        <el-button v-if="!coverUrl" class="ml-4" type="danger" @click="onChangeCover">Сбросить</el-button>
       </div>
     </div>
 
@@ -322,14 +310,10 @@
     </div>
 
     <div class="item my-4" v-if="isAdmin">
-      <div class="subtitle mb-1">Изменить URL тайтла (<u>изменять НЕ рекомендуется!</u>)</div>
-      <el-input v-model="selected.alias" class="mb-4" />
-
       <div class="flex flex-row justify-center mb-2">
         <el-radio-group v-model="idStatus">
           <el-radio label="1">Опубликовано</el-radio>
           <el-radio label="2">Проверяется</el-radio>
-          <el-radio label="3">Черновик</el-radio>
           <el-radio label="4">Снято</el-radio>
           <el-radio label="5">Отклонено</el-radio>
         </el-radio-group>
@@ -337,9 +321,8 @@
     </div>
 
     <div class="item my-4 action">
-      <el-button class="mb-2" type="danger" @click="initData">Отменить</el-button>
-      <el-button class="mb-2" type="warning" @click="fetchUpdate(3)">Сохранить в черновик</el-button>
-      <el-button class="mb-2" type="success" @click="fetchUpdate">Сохранить</el-button>
+      <el-button class="mb-2" type="warning" @click="sendNewTitle(3)">Сохранить в черновик</el-button>
+      <el-button class="mb-2" type="success" @click="sendNewTitle">Отправить на модерацию</el-button>
     </div>
 
     <client-only>
@@ -395,33 +378,28 @@
 import { storeToRefs } from 'pinia'
 import { ElNotification } from 'element-plus'
 
-import { FindKeys } from "services/types"
-import { Manga, typeName, CreateData, ResponseApi } from "services/interfaces"
+import { FindKeys } from "@/services/types"
+import { Manga, typeName, CreateData, ResponseApi } from "@/services/interfaces"
 
 import { useUserStore } from '~/stores/user'
 import { useEditStore } from '~/stores/edit'
-import { useMangaStore } from '~/stores/manga'
 import { useCreateStore } from '~/stores/create'
+import { useUtils } from '~/composables/useUtils'
 import { useUserSettings } from '~/composables/useUserSettings'
-
-const { sizeDialog } = useUserSettings()
-const { params: { alias } } = useRoute()
-const { public: { urlCoverTitle } } = useRuntimeConfig()
 
 definePageMeta({
   middleware: 'auth'
 })
+const { sizeDialog } = useUserSettings()
+const { getAliasByTitles } = useUtils()
 
-const { fetchManga } = useMangaStore()
-const { manga } = storeToRefs(useMangaStore())
 const { isAdmin } = storeToRefs(useUserStore())
 const { editMangaCreateData, findData } = storeToRefs(useEditStore())
-const { fetchSendData, fetchCreateDate, fetchFindData, setInitData } = useEditStore()
-const { fetchCreatePeople, fetchCreateTeams, fetchCreatePublishers } = useCreateStore()
+const { fetchCreateDate, fetchFindData } = useEditStore()
+const { fetchCreateNewTitle, fetchCreatePeople, fetchCreateTeams, fetchCreatePublishers } = useCreateStore()
 
 
 const cover = ref() // $ref DOM Element
-const coverUrl = ref('')
 const idStatus = ref('')
 const loading = ref(false)
 const createTitle = ref('')
@@ -430,8 +408,6 @@ const selected = ref<Manga>({} as Manga)
 const selectedCover = ref<string | File>('')
 const createData = ref<CreateData>({} as CreateData)
 const createCurrentTitle = ref<FindKeys>('authors' as FindKeys)
-
-const imageUrl = computed<string>(() => urlCoverTitle + manga.value.id + '/' + manga.value.cover)
 
 const onChangeCover = (e: Event) => {
   const target = e.target as HTMLInputElement
@@ -451,12 +427,10 @@ const onChangeCover = (e: Event) => {
     }
     imageView.readAsDataURL(file)
     selectedCover.value = file
-    coverUrl.value = ''
   } else {
     selectedCover.value = ''
     src.style.aspectRatio = 'auto'
     src.style.backgroundImage = 'none'
-    coverUrl.value = imageUrl.value
   }
 }
 
@@ -464,58 +438,54 @@ const fetchTeams = (query: string) => fetchFindData('teams', 'teams', query)
 const fetchAuthors = (query: string) => fetchFindData('peoples', 'authors', query)
 const fetchArtists = (query: string) => fetchFindData('peoples', 'artists', query)
 const fetchPublishers = (query: string) => fetchFindData('publishers', 'publishers', query)
-
-const isOriginalCover = () => !selectedCover.value
-const isOriginalStr = (key: keyof Manga) => (manga.value[key] as string).trim() === (selected.value[key] as string).trim()
-const isOriginalObj = (key: 'adult_rank' | 'status_of_releases' | 'status_of_translation' | 'type') => manga.value[key]?.id === selected.value[key]?.id
-const isOriginalArr = (key: keyof Manga) => JSON.stringify((manga.value[key] as typeName[]).map(i => i.id)) === JSON.stringify((selected.value[key] as typeName[]).map(i => i.id))
-
-const getIdsFromArrays = (arr: typeName[]) => arr.length ? [... new Set(arr.map(i => i.id))].join() : '-1'
+const getIdsFromArrays = (arr: typeName[]) => [... new Set(arr.map(i => i.id))].join()
 
 
-const fetchUpdate = async (status = 0) => {
+const sendNewTitle = async (status = 0) => {
   const data = new FormData()
 
   // Фильтруем данные перед отправкой
-  if(!isOriginalStr('alias') && isAdmin.value) data.append('alias', selected.value.alias)
-  if(!isOriginalCover() && selectedCover.value != '') data.append('image', selectedCover.value)
-  if(!isOriginalStr('title_rus') && selected.value.title_rus) data.append('title_rus', selected.value.title_rus)
-  if(!isOriginalStr('title_eng') && selected.value.title_eng) data.append('title_eng', selected.value.title_eng)
-  if(!isOriginalStr('title_orig') && selected.value.title_orig) data.append('title_orig', selected.value.title_orig)
-  if(!isOriginalStr('title_alt') && selected.value.title_alt) data.append('title_alt', selected.value.title_alt)
-  if(!isOriginalObj('type') && selected.value.type?.id) data.append('id_type', selected.value.type.id + '')
-  if(!isOriginalStr('year') && selected.value.year) data.append('year', selected.value.year)
-  if(!isOriginalArr('authors') && selected.value.authors) data.append('id_author', getIdsFromArrays(selected.value.authors))
-  if(!isOriginalArr('artists') && selected.value.artists) data.append('id_artist', getIdsFromArrays(selected.value.artists))
-  if(!isOriginalArr('teams') && selected.value.teams) data.append('id_teams', getIdsFromArrays(selected.value.teams))
-  if(!isOriginalArr('publishers') && selected.value.publishers) data.append('id_publishers', getIdsFromArrays(selected.value.publishers))
-  if(!isOriginalArr('formats') && selected.value.formats) data.append('id_formats', getIdsFromArrays(selected.value.formats))
-  if(!isOriginalObj('adult_rank') && selected.value.adult_rank?.id) data.append('id_adult_rank', selected.value.adult_rank.id + '')
-  if(!isOriginalArr('genres') && selected.value.genres) data.append('id_genres', getIdsFromArrays(selected.value.genres))
-  if(!isOriginalArr('tags') && selected.value.tags) data.append('id_tags', getIdsFromArrays(selected.value.tags))
-  if(!isOriginalObj('status_of_releases') && selected.value.status_of_releases?.id) data.append('id_status_of_releases', selected.value.status_of_releases.id + '')
-  if(!isOriginalObj('status_of_translation') && selected.value.status_of_translation?.id) data.append('id_status_of_translation', selected.value.status_of_translation.id + '')
-  if(!isOriginalStr('description') && selected.value.description) data.append('description', selected.value.description)
+  if(selectedCover.value != '') data.append('image', selectedCover.value)
+  if(selected.value.title_rus) data.append('title_rus', selected.value.title_rus)
+  if(selected.value.title_eng) data.append('title_eng', selected.value.title_eng)
+  if(selected.value.title_rus || selected.value.title_eng) data.append('alias', getAliasByTitles(selected.value.title_rus, selected.value.title_eng))
+
+  if(selected.value.title_orig) data.append('title_orig', selected.value.title_orig)
+  if(selected.value.title_alt) data.append('title_alt', selected.value.title_alt)
+  if(selected.value.type?.id) data.append('id_type', selected.value.type.id + '')
+  if(selected.value.year) data.append('year', selected.value.year)
+  if(selected.value.adult_rank?.id) data.append('id_adult_rank', selected.value.adult_rank.id + '')
+  if(selected.value.authors?.length) data.append('id_author', getIdsFromArrays(selected.value.authors))
+  if(selected.value.artists?.length) data.append('id_artist', getIdsFromArrays(selected.value.artists))
+  if(selected.value.teams?.length) data.append('id_teams', getIdsFromArrays(selected.value.teams))
+  if(selected.value.publishers?.length) data.append('id_publishers', getIdsFromArrays(selected.value.publishers))
+  if(selected.value.formats?.length) data.append('id_formats', getIdsFromArrays(selected.value.formats))
+  if(selected.value.genres?.length) data.append('id_genres', getIdsFromArrays(selected.value.genres))
+  if(selected.value.tags?.length) data.append('id_tags', getIdsFromArrays(selected.value.tags))
+  if(selected.value.status_of_releases?.id) data.append('id_status_of_releases', selected.value.status_of_releases.id + '')
+  if(selected.value.status_of_translation?.id) data.append('id_status_of_translation', selected.value.status_of_translation.id + '')
+  if(selected.value.description) data.append('description', selected.value.description)
   if(selected.value.mod_link?.length && selected.value.mod_link[0] != '') data.append('mod_link', ((selected.value.mod_link as []).filter(Boolean)).join('||') )
 
   if(status == 3) { // Отправить в черновик
     data.append('status', status + '')
   } else if (isAdmin.value && idStatus.value != '') { // Куда угодно
     data.append('status', idStatus.value)
-  } else { // Отправить на модерацию
-    data.append('status', '2')
   }
 
-  const res: ResponseApi = await fetchSendData(manga.value.id, data) // Отправляем данные
+  const res: ResponseApi = await fetchCreateNewTitle(data) // Отправляем данные на сервер
   if(res.status == 'ok') {
     ElNotification({
       title: 'Успешно!',
       message: res.msg,
       type: 'success',
     })
-    coverUrl.value = ''
-    await initData() //* Инициируем новые данные
-    cover.value.style = {} 
+    await navigateTo({
+      name: 'manga-alias',
+      params: {
+        alias: res.alias
+      }
+    })
 
   } else {
     ElNotification({
@@ -590,48 +560,10 @@ const fetchCreate = async () => {
 /**
  * Инициализация данных
  */
-const initData = async () => {
-  await fetchManga(alias)
-  if(editMangaCreateData.value.tags == undefined ) await fetchCreateDate()
-
-  selected.value.alias = manga.value.alias
-
-  selected.value.title_rus = manga.value.title_rus
-  selected.value.title_eng = manga.value.title_eng
-  selected.value.title_orig = manga.value.title_orig
-  selected.value.title_alt = manga.value.title_alt
-
-  selected.value.type = manga.value.type
-  selected.value.year = manga.value.year
-
-  setInitData('authors', manga.value.authors)
-  selected.value.authors = manga.value.authors
-  setInitData('artists', manga.value.artists)
-  selected.value.artists = manga.value.artists
-
-  setInitData('publishers', manga.value.publishers)
-  selected.value.publishers = manga.value.publishers
-
-  setInitData('teams', manga.value.teams)
-  selected.value.teams = manga.value.teams
-
-  selected.value.formats = manga.value.formats
-  selected.value.adult_rank = manga.value.adult_rank
-
-  selected.value.genres = manga.value.genres
-  selected.value.tags = manga.value.tags
-
-  selected.value.status_of_releases = manga.value.status_of_releases
-  selected.value.status_of_translation = manga.value.status_of_translation
-
-  selected.value.description = manga.value.description
-  selected.value.mod_link = manga.value.mod_link
-
-  coverUrl.value = manga.value.cover ? imageUrl.value : ''
-  idStatus.value = ''
+selected.value.mod_link = ['']
+if(editMangaCreateData.value.tags == undefined ) {
+  await fetchCreateDate()
 }
-
-await initData() // выполнить в конце файла
 </script>
 
 
