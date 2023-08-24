@@ -1,8 +1,10 @@
 import { acceptHMRUpdate, defineStore } from "pinia"
 import { FindKeys } from "services/types"
+import { useUtils } from '@/composables/useUtils'
 import { EditMangaCreateData, typeName, ResponseApi } from "services/interfaces"
 
 export const useEditStore = defineStore("edit", () => {
+  const { resApi } = useUtils()
   const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
 
   // State
@@ -27,7 +29,7 @@ export const useEditStore = defineStore("edit", () => {
       method: 'POST',
       body: data,
     })
-    return res.data.value ? res.data.value as ResponseApi : { status: res.status.value, msg: res.error.value?.data.message }
+    return resApi(res)
   }
 
   const fetchCreateDate = async () => {

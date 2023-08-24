@@ -1,4 +1,5 @@
-import { ChapterInPost } from "@/services/interfaces"
+import { ResponseApi } from '@/services/interfaces'
+import { ChapterInPost } from '@/services/interfaces'
 
 export const useUtils = () => {
 /**
@@ -120,7 +121,18 @@ function getAliasByTitles(titileRus: string = '', titleEng: string = ''){
 }
 
 
+/**
+ * Результат ответа API
+ * @param res Сам ответ
+ * @returns Универсальный ответ
+ */
+const resApi = (res: any) => {
+  return res.data.value ? res.data.value as ResponseApi : { status: res.status.value, msg: res.error.value?.data.message }
+}
+
+
   return {
+    resApi,
     showDate,
     updateTime,
     mergeDuplicates,

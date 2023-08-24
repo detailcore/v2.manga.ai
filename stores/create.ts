@@ -1,8 +1,10 @@
 import { acceptHMRUpdate, defineStore } from "pinia"
-import { ResponseApi, CreateData } from "services/interfaces"
+import { CreateData } from '@/services/interfaces'
+import { useUtils } from '@/composables/useUtils'
 
 
 export const useCreateStore = defineStore("create", () => {
+  const { resApi } = useUtils()
   const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
 
   // State
@@ -17,28 +19,28 @@ export const useCreateStore = defineStore("create", () => {
       method: 'POST',
       body: data,
     })
-    return res.data.value ? res.data.value as ResponseApi : { status: res.status.value, msg: res.error.value?.data.message }
+    return resApi(res)
   }
   const fetchCreatePeople = async (data: CreateData) => {
     const res = await useApiFetch(apiDomain + apiPrefix + '/people', {
       method: 'POST',
       body: data
     })
-    return res.data.value ? res.data.value as ResponseApi : { status: res.status.value, msg: res.error.value?.data.message }
+    return resApi(res)
   }
   const fetchCreateTeams = async (payload: CreateData) => {
     const res = await useApiFetch(apiDomain + apiPrefix + '/team', {
       method: 'POST',
       body: payload
     })
-    return res.data.value ? res.data.value as ResponseApi : { status: res.status.value, msg: res.error.value?.data.message }
+    return resApi(res)
   }
   const fetchCreatePublishers = async (data: CreateData) => {
     const res = await useApiFetch(apiDomain + apiPrefix + '/publisher', {
       method: 'POST',
       body: data
     })
-    return res.data.value ? res.data.value as ResponseApi : { status: res.status.value, msg: res.error.value?.data.message }
+    return resApi(res)
   }
 
   return {
