@@ -227,3 +227,27 @@ export interface ResponseApi {
   message?: string
   status?: string
 }
+
+
+/**
+ * Last chapter
+ */
+export interface LastChapter {
+  volume: number
+  chapter: string
+}
+
+
+/**
+ * Create New Chapter
+ */
+export interface NewChapter {
+  id?: number
+  volume: number
+  chapter: string
+  name?: string
+  teams?: typeName[]
+  file?: File
+  isLoaded?: boolean
+  filename?: string
+}

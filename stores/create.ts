@@ -2,18 +2,41 @@ import { acceptHMRUpdate, defineStore } from "pinia"
 import { CreateData } from '@/services/interfaces'
 import { useUtils } from '@/composables/useUtils'
 
+interface LastChapter {
+  volume: number
+  chapter: string
+}
+interface MangaInfo {
+  id: number
+  alias: string
+  title_rus: string
+  title_eng: string
+}
 
 export const useCreateStore = defineStore("create", () => {
   const { resApi } = useUtils()
   const { public: { apiDomain, apiPrefix } } = useRuntimeConfig()
 
   // State
+  const lastChapter = ref({} as LastChapter)
+  const mangaInfo = ref({} as MangaInfo)
 
   // Getters
 
   // Setters
 
   // Actions
+  const fetchCreateInfoChapter = async (alias: string) => {
+    const res = await useApiFetch(apiDomain + apiPrefix + `/create/${alias}/chapter`)
+    return resApi(res)
+  }
+  const fetchCreateNewChapter = async (data: any) => {
+    const res = await useApiFetch(apiDomain + apiPrefix + `/post`, {
+      method: 'POST',
+      body: data,
+    })
+    return resApi(res)
+  }
   const fetchCreateNewTitle = async (data: any) => {
     const res = await useApiFetch(apiDomain + apiPrefix + `/post`, {
       method: 'POST',
@@ -44,6 +67,7 @@ export const useCreateStore = defineStore("create", () => {
   }
 
   return {
+    fetchCreateInfoChapter,
     fetchCreateNewTitle,
     fetchCreatePeople,
     fetchCreateTeams,
