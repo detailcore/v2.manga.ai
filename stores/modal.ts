@@ -10,14 +10,16 @@ interface togglePayload {
 
 export const useModalStore = defineStore("modal", () => {
 
-  // Состояние окон
+  // State
   const isOpen = reactive({
     user: false, // пользователь
     login: false, // авторизация
     search: false, // быстрый поиск
   })
 
-  // Переключатель окон
+  // Getters
+
+  // Setters
   const toggleModal = ({ name, value }: togglePayload) => {
     isOpen[name] = value
   }
