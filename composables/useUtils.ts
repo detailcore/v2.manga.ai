@@ -131,11 +131,20 @@ const resApi = (res: any) => {
 }
 
 
+/**
+ * Одновременное выполнение асинхронных функций
+ */
+const useAllSettled = async (fnc: any[]) => {
+  await Promise.allSettled(fnc)
+}
+
+
   return {
     resApi,
     showDate,
     updateTime,
     mergeDuplicates,
     getAliasByTitles,
+    useAllSettled,
   }
 }

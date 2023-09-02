@@ -56,7 +56,7 @@ export const useMangaStore = defineStore("manga", () => {
   }
 
   // Actions
-  const fetchManga = async (alias: string | string[]) => {
+  const fetchManga = async (alias: string) => {
     const { data: { value } } = await useApiFetch(apiDomain + apiPrefix + `/post/${alias}`)
     manga.value = value as Manga
   }

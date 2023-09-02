@@ -1,6 +1,8 @@
 <template>
   <el-dropdown :trigger="'click'">
-    <el-button :icon="ElIconUser" round>{{ user?.name }}</el-button>
+    <el-button v-if="!isReader" :icon="ElIconUser" round>{{ user?.name }}</el-button>
+    <el-button v-else :icon="ElIconUser" circle />
+
     <template #dropdown>
       <el-dropdown-menu class="min-w-140px">
         <el-dropdown-item>
@@ -36,8 +38,11 @@ import Logout from '@/components/Icons/Logout.vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-const { user, isAdmin } = storeToRefs(useUserStore())
 const { fetchLogout } = useUserStore()
+const { meta: { layout } } = useRoute()
+const { user, isAdmin } = storeToRefs(useUserStore())
+
+const isReader = computed(() => layout === 'reader')
 
 const createPost = async () => {
   await navigateTo({

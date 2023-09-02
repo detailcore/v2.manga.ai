@@ -91,7 +91,7 @@ interface ratingManga {
 /**
  * Команда переводчиков тайтла
  */
-interface teamManga {
+export interface TeamManga {
   id: number
   cover: string | null
   name: string
@@ -180,7 +180,7 @@ export interface Manga {
   status_of_releases?: typeName
   status_of_translation?: typeName
   tags?: typeName[]
-  teams: teamManga[]
+  teams: TeamManga[]
   title_alt?: string
   title_eng?: string
   title_orig?: string
@@ -250,4 +250,56 @@ export interface NewChapter {
   file?: File
   isLoaded?: boolean
   filename?: string
+}
+
+
+/**
+ * Team in reader
+ */
+export interface TeamInReader {
+  id: number
+  name: string
+  cover: string
+  desc_short: string
+}
+
+
+/**
+ * Team in reader
+ */
+export interface PagesInReader {
+  id: number
+  link: string
+  page: number
+  sort: number
+}
+
+
+/**
+ * Current chapter in reader
+ */
+export interface ChapterInReader {
+  id: number
+  id_branch: string
+  id_status: number
+  id_post: number
+  title_eng: string
+  title_rus: string
+  volume: number
+  chapter: string
+  name: string
+  teams: TeamInReader[]
+  pages: PagesInReader[]
+}
+
+
+/**
+ * Chapter list in reader
+ */
+export interface ChapterListInReader {
+  id: number
+  volume: number
+  chapter: string
+  name: string
+  teams: typeName[] | []
 }

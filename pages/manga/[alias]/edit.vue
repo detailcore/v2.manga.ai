@@ -591,7 +591,7 @@ const fetchCreate = async () => {
  * Инициализация данных
  */
 const initData = async () => {
-  await fetchManga(alias)
+  await fetchManga(alias as string)
   if(editMangaCreateData.value.tags == undefined ) await fetchCreateDate()
 
   selected.value.alias = manga.value.alias

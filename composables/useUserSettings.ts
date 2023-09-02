@@ -1,5 +1,4 @@
-import { useWindowSize } from '@vueuse/core'
-import { useDark, useToggle } from '@vueuse/core'
+import { useDark, useToggle, useWindowSize, useElementSize, useVirtualList } from '@vueuse/core'
 
 
 export const useUserSettings = () => {
@@ -35,6 +34,9 @@ export const useUserSettings = () => {
     setColorMode,
     userWidth,
     userHeight,
+
+    useElementSize,
+    useVirtualList,
 
     sizeDrawer,
     sizeDialog,

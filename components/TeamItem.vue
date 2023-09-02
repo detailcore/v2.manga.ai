@@ -1,5 +1,5 @@
 <template>
-  <div class="team-item cursor-pointer mb-3" @click="gotoByPath(`/manga/${id}`)">
+  <div class="team-item cursor-pointer mb-3" @click="linkOrBtn">
     <el-image
       class="team-item-image"
       :src="coverUrl"
@@ -26,12 +26,12 @@
 
 
 <script setup lang="ts">
-import { useGoto } from "@/composables/useGoto"
 
 interface Props {
   id: number
   name?: string
   cover?: string
+  isLink?: true
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -45,6 +45,9 @@ const { public: { urlCoverTeam } } = useRuntimeConfig()
 
 const coverUrl = computed(() => (props.cover != null) ? urlCoverTeam + props.id + '/' + props.cover : '')
 
+const linkOrBtn = () => {
+  if(props.isLink) gotoByPath(`/team/${props.id}`)
+}
 </script>
 
 

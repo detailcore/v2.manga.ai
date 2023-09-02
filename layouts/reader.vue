@@ -1,6 +1,7 @@
 <template>
-  <div class="page_reader">
-    Это слой читалки
+  <HeaderReader />
+
+  <div class="page-reader">
     <slot />
   </div>
 </template>

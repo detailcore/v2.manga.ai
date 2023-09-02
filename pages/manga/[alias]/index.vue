@@ -171,8 +171,7 @@
 import Bookopen from '@/components/Icons/Bookopen.vue'
 import { storeToRefs } from 'pinia'
 import { useMangaStore } from '~/stores/manga'
-import { useUserSettings } from '~/composables/useUserSettings'
-import { useDisplayUtils } from '~/composables/useDisplayUtils'
+import { useChaptersStore } from '~/stores/chapters'
 
 // definePageMeta({
 //   layout: 'fullstory'
@@ -217,8 +216,16 @@ const typeOfRelease = computed(() => {
 
 const { fetchManga } = useMangaStore()
 const { manga } = storeToRefs(useMangaStore())
+const { fetchChapters } = useChaptersStore()
 
-await fetchManga(alias)
+if(manga.value.alias !== alias) {
+  await Promise.allSettled([
+    fetchManga(alias as string),
+    fetchChapters(alias as string)
+  ])
+} else {
+  console.log('Используем локальные данные.')
+}
 </script>
 
 

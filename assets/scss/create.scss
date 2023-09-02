@@ -32,9 +32,11 @@
         width: 100%;
         max-height: 450px;
       }
-      img,
       .el-image {
         max-height: inherit;
+        .el-image__inner {
+          max-height: inherit;
+        }
       }
       .text {
         text-align: center;

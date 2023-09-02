@@ -1,5 +1,5 @@
 <template>
-  <div class="chapter mb-4">
+  <div class="chapter mb-2">
     <div class="chapter-title">Том {{ volume }} Глава {{ chapter }}</div>
     <div class="chapter-item" 
       v-for="{
@@ -61,19 +61,13 @@ interface Chapters {
 }
 const props = defineProps<Chapters>()
 
-const route = useRoute()
+const { path } = useRoute()
 const { updateTime } = useUtils()
 
 
-const urlChapter = computed(() => {
-  return route.path + '/ch/'
-})
-const volume = computed(() => {
-  return props.chapters[0].volume
-})
-const chapter = computed(() => {
-  return props.chapters[0].chapter
-})
+const urlChapter = computed(() => path + '/')
+const volume = computed(() => props.chapters[0].volume)
+const chapter = computed(() => props.chapters[0].chapter)
 </script>
 
 
@@ -93,7 +87,8 @@ const chapter = computed(() => {
     padding: 0 0 0 4px;
   }
   .chapter-item {
-    border-left: 4px solid rgba(0,255,34,.25);
+    border-left: 4px solid var(--el-border-color-light);
+    // border-left: 4px solid rgba(0,255,34,.25);
     border-top: 1px solid var(--el-border-color-light);
     display: flex;
     justify-content: space-between;
