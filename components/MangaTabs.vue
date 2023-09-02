@@ -70,7 +70,7 @@ const { useElementSize, useVirtualList } = useUserSettings()
 
 const order = ref('desc')
 const perPage = ref(60)
-const activeTabName = ref<string>('chapters')
+const activeTabName = ref<string>('desc')
 
 const multiple2Number = computed(() => {
   const n = perPage.value
