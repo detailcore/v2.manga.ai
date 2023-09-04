@@ -70,7 +70,11 @@ export default defineNuxtConfig({
     themes: ['dark'],
   },
   pwa: {
-    /* your pwa options */
+    strategies: 'generateSW',
+    workbox: {
+      globPatterns: ['**\/*.{js,css}'],
+      navigateFallback: null,
+    },
   },
 
   // .env config
