@@ -70,10 +70,17 @@ export default defineNuxtConfig({
     themes: ['dark'],
   },
   pwa: {
+    registerType: 'autoUpdate',
     strategies: 'generateSW',
     workbox: {
-      globPatterns: ['**\/*.{js,css}'],
+      globPatterns: ['**\/*.{js,css,jpg,webp,png,svg,ico}'],
       navigateFallback: null,
+    },
+    manifest: {
+      lang: 'ru',
+      name: 'MangaMir v2',
+      short_name: 'MangaMir2',
+      theme_color: '#121212',
     },
   },
 
